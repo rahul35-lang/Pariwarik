@@ -1,5 +1,11 @@
-const fConfig = { apiKey: "AIzaSyDlnzH1D7D7Q663eWE086ng_1KdP46MZEs", authDomain: "deep-freehold-389006.firebaseapp.com", databaseURL: "https://deep-freehold-389006-default-rtdb.firebaseio.com", projectId: "deep-freehold-389006", storageBucket: "deep-freehold-389006.appspot.com", appId: "1:76562961838:web:4d18b2f79d7eb9fd88243f" };
-
+const fConfig = { apiKey: "AIzaSyAHOiriisWOpuVLAdcYun_mCkOhbYfB5y4",
+  authDomain: "deep-freehold-389006.firebaseapp.com",
+  databaseURL: "https://deep-freehold-389006-default-rtdb.firebaseio.com",
+  projectId: "deep-freehold-389006",
+  storageBucket: "deep-freehold-389006.appspot.com",
+  messagingSenderId: "76562961838",
+  appId: "1:76562961838:web:4d18b2f79d7eb9fd88243f",
+  measurementId: "G-VZC36FJC24"};
 let allItems = [], cart = [];
 const imageCache = {};
 
