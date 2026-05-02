@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dining Menu | Pariwarik Hotel</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">Loading Menu...</p>
+    </div>
+
+    <header>
+        <a href="index.html" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--text); font-size: 1.2rem;">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Pariwarik Logo">
+        </div>
+        <div class="header-title">Dining Menu</div>
+    </header>
+
+    <div class="nav-sticky">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search for delicacies..." oninput="renderItems()">
+        </div>
+    </div>
+
+    <main id="menuContent">
+        <!-- Menu items will be rendered here by menu.js -->
+    </main>
+
+    <div class="bottom-bar shadow-lg">
+        <div class="total-info" onclick="toggleDrawer('cartDrawer')">
+            <div class="label">Your Order</div>
+            <div class="val">Rs <span id="mainTotal">0.00</span></div>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div class="action-btn" onclick="toggleDrawer('historyDrawer')">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="action-btn" onclick="toggleDrawer('cartDrawer')">
+                <i class="fas fa-shopping-basket"></i>
+                <div id="cartBadge" class="badge" style="display: none;">0</div>
+            </div>
+            <button class="btn-add" style="width: auto; padding: 0 25px; margin: 0;" onclick="checkRegistration()">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay" onclick="closeAll()"></div>
+
+    <!-- Cart Drawer -->
+    <div id="cartDrawer" class="drawer">
+        <div class="drawer-header">
+            <h3>Your Selection</h3>
+            <i class="fas fa-times" onclick="closeAll()"></i>
+        </div>
+        <div id="cartList" class="drawer-body">
+            <!-- Cart items here -->
+        </div>
+        <div class="drawer-footer">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 700; font-family: var(--font-serif); font-size: 1.2rem;">
+                <span>Total Amount</span>
+                <span id="cartTotalDrawer">Rs 0.00</span>
+            </div>
+            <button class="btn-add" onclick="checkRegistration()">Confirm Order</button>
+        </div>
+    </div>
+
+    <!-- History Drawer -->
+    <div id="historyDrawer" class="drawer">
+        <div class="drawer-header">
+            <h3>Previous Orders</h3>
+            <i class="fas fa-times" onclick="closeAll()"></i>
+        </div>
+        <div id="historyStream" class="drawer-body">
+            <!-- History here -->
+        </div>
+    </div>
+
+    <!-- Registration Drawer -->
+    <div id="regDrawer" class="drawer">
+        <div class="drawer-header">
+            <h3>Ordering Details</h3>
+            <i class="fas fa-times" onclick="closeAll()"></i>
+        </div>
+        <div class="drawer-body">
+            <div class="input-group mb-4">
+                <label>Order Type</label>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary active w-50 rounded-0" id="btnHotel" onclick="setOrderType('hotel')">Hotel Guest</button>
+                    <button class="btn btn-outline-primary w-50 rounded-0" id="btnLocal" onclick="setOrderType('local')">Local Delivery</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" class="input-box" placeholder="Enter your name">
+            </div>
+
+            <!-- Hotel Specific -->
+            <div id="hotelFields">
+                <div class="input-group">
+                    <label>Room Number</label>
+                    <input type="number" id="regRoom" class="input-box" placeholder="e.g. 101">
+                </div>
+            </div>
+
+            <!-- Local Specific -->
+            <div id="localFields" style="display: none;">
+                <div class="input-group">
+                    <label>Contact Number</label>
+                    <input type="tel" id="regPhone" class="input-box" placeholder="+977-XXXXXXXXXX">
+                </div>
+                <div class="input-group">
+                    <label>Area / Location</label>
+                    <select id="regArea" class="input-box">
+                        <option value="Bharatpur 10">Bharatpur 10</option>
+                        <option value="Bharatpur 11">Bharatpur 11</option>
+                        <option value="Other">Other Area</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Nearest Landmark</label>
+                    <input type="text" id="regLandmark" class="input-box" placeholder="e.g. Near Central Hospital">
+                </div>
+                <div class="input-group">
+                    <label>Delivery Area Check</label>
+                    <div class="d-flex flex-column gap-3 mt-2">
+                        <button id="btnVerifyLoc" class="btn btn-outline-primary rounded-0 py-3" onclick="verifyLocation()">
+                            <i class="fas fa-map-marker-alt me-2"></i> Verify My Location
+                        </button>
+                        <div id="locStatus" class="small text-muted text-center" style="min-height: 20px;">
+                            Click above to verify if you are within 1km.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="drawer-footer">
+            <button class="btn-add" onclick="saveReg()">Next Step</button>
+        </div>
+    </div>
+
+    <!-- Confirm Drawer -->
+    <div id="confirmDrawer" class="drawer">
+        <div class="drawer-header">
+            <h3>Finalize Order</h3>
+            <i class="fas fa-times" onclick="closeAll()"></i>
+        </div>
+        <div class="drawer-body text-center" style="text-align: center;">
+            <i class="fas fa-concierge-bell fa-3x text-primary mb-4" style="margin-bottom: 20px; color: var(--primary);"></i>
+            <p id="confirmMsg">Ready to send your order to our kitchen?</p>
+            <p class="small text-muted" id="confirmSubMsg">Items will be prepared shortly.</p>
+        </div>
+        <div class="drawer-footer">
+            <button class="btn-add mb-2" onclick="finalizeOrder()">Place Order</button>
+            <button class="btn btn-outline-primary w-100 rounded-0" style="padding: 12px; font-size: 0.75rem;" onclick="toggleDrawer('regDrawer')">Change Details / Order Type</button>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="menu.js"></script>
+</body>
+</html>
